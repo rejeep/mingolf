@@ -1,7 +1,7 @@
 # coding: utf-8
-require 'mingolf'
+require 'mingolf/runner'
 
-describe Mingolf do
+describe Mingolf::Runner do
   let :argv do
     %w[--date 2020-05-30 --from 10:00 --to 15:00 --slots 2]
   end
@@ -67,7 +67,7 @@ describe Mingolf do
     'https://mingolf.golf.se/handlers/booking/GetTeeTimesFullDay/COURSE_ID/CLUB_ID/20200530T090000/1'
   end
 
-  subject :mingolf do
+  subject :runner do
     described_class.new(
       argv,
       http: http,
@@ -87,25 +87,25 @@ describe Mingolf do
 
   shared_examples 'free slot found' do
     it 'prints information about free slot' do
-      mingolf.run
+      runner.run
       expect(io).to have_received(:puts).with('1 free slots found')
       expect(io).to have_received(:puts).with('2020-05-30 11:30 at "OrganizationalunitName"')
     end
 
     it 'says information about free slot' do
-      mingolf.run
+      runner.run
       expect(executor).to have_received(:system).with('say "1 free slots found"')
     end
   end
 
   shared_examples 'no free slot found' do
     it 'prints no free slots' do
-      mingolf.run
+      runner.run
       expect(io).to have_received(:puts).with('No free slots')
     end
 
     it 'does not say anything' do
-      mingolf.run
+      runner.run
       expect(executor).not_to have_received(:system)
     end
   end
