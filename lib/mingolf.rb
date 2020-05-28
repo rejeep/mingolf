@@ -65,9 +65,12 @@ class Mingolf
       if free_slots.empty?
         @io.puts('No free slots')
       else
-        @io.puts('Free slots found')
+        @io.puts("#{free_slots.size} free slots found")
         free_slots.each do |free_slot|
-          @io.puts(format('%s at %s', Time.strptime(free_slot.fetch('SlotTime'), '%Y%m%dT%H%M%S'), free_slot.fetch('OrganizationalunitName')))
+          slot_time = Time.strptime(free_slot.fetch('SlotTime'), '%Y%m%dT%H%M%S')
+          slot_time_pretty = slot_time.strftime('%Y-%m-%d %H:%M')
+          slot_organizational_unit_name = free_slot.fetch('OrganizationalunitName')
+          @io.puts("#{slot_time_pretty} at #{slot_organizational_unit_name.inspect}")
         end
         @io.puts('')
         @executer.system %|say "#{free_slots.size} free slots found"|

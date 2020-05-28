@@ -88,8 +88,8 @@ describe Mingolf do
   shared_examples 'free slot found' do
     it 'prints information about free slot' do
       mingolf.run
-      expect(io).to have_received(:puts).with('Free slots found')
-      expect(io).to have_received(:puts).with('2020-05-30 11:30:00 +0200 at OrganizationalunitName')
+      expect(io).to have_received(:puts).with('1 free slots found')
+      expect(io).to have_received(:puts).with('2020-05-30 11:30 at "OrganizationalunitName"')
     end
 
     it 'says information about free slot' do
