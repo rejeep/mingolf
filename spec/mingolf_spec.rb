@@ -24,8 +24,8 @@ describe Mingolf do
     double(:sleeper)
   end
 
-  let :executer do
-    double(:executer, system: nil)
+  let :executor do
+    double(:executor, system: nil)
   end
 
   let :slot_time do
@@ -75,7 +75,7 @@ describe Mingolf do
       courses: courses,
       attempts: 1,
       sleeper: sleeper,
-      executer: executer,
+      executor: executor,
     )
   end
 
@@ -94,7 +94,7 @@ describe Mingolf do
 
     it 'says information about free slot' do
       mingolf.run
-      expect(executer).to have_received(:system).with('say "1 free slots found"')
+      expect(executor).to have_received(:system).with('say "1 free slots found"')
     end
   end
 
@@ -106,7 +106,7 @@ describe Mingolf do
 
     it 'does not say anything' do
       mingolf.run
-      expect(executer).not_to have_received(:system)
+      expect(executor).not_to have_received(:system)
     end
   end
 

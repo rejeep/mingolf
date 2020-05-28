@@ -15,7 +15,7 @@ class Mingolf
     %w[a9d7060f-0051-40fc-a021-98b885a55300 f6845066-ac12-4971-b7c9-327629d06b50], # St. Jörgen
   ].freeze
 
-  def initialize(argv, http: nil, io: nil, courses: nil, attempts: nil, sleeper: nil, executer: nil)
+  def initialize(argv, http: nil, io: nil, courses: nil, attempts: nil, sleeper: nil, executor: nil)
     @options = parse_options(argv)
     @date = @options.fetch(:date)
     @from = @options.fetch(:from)
@@ -27,7 +27,7 @@ class Mingolf
     @courses = courses || COURSES
     @attempts = attempts || 100_000
     @sleeper = sleeper || Kernel
-    @executer = executer || Kernel
+    @executor = executor || Kernel
   end
 
   def run
@@ -73,7 +73,7 @@ class Mingolf
           @io.puts("#{slot_time_pretty} at #{slot_organizational_unit_name.inspect}")
         end
         @io.puts('')
-        @executer.system %|say "#{free_slots.size} free slots found"|
+        @executor.system %|say "#{free_slots.size} free slots found"|
       end
       @sleeper.sleep(@sleep)
     end
