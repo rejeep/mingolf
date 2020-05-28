@@ -111,8 +111,8 @@ class Mingolf
       opts.on('--slots SLOTS', Integer) do |slots|
         options[:slots] = slots
       end
-      opts.on('--sleep SLEEP', Integer) do |sleep|
-        options[:sleep] = sleep
+      opts.on('--sleep SECONDS', Integer) do |seconds|
+        options[:sleep] = seconds
       end
     end
     optparse.parse!(argv)
