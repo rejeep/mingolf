@@ -1,17 +1,22 @@
+require 'mingolf/client'
 require 'mingolf/runner'
 
 describe Mingolf::Runner do
+  let :client do
+    instance_double(Mingolf::Client)
+  end
+
+  let :date do
+    Date.new(2020, 5, 30)
+  end
+
   let :options do
     {
-      date: Date.new(2020, 5, 30),
+      date: date,
       from: Time.new(2020, 5, 30, 10, 0),
       to: Time.new(2020, 5, 30, 15, 0),
       slots: 2,
     }
-  end
-
-  let :http do
-    double(:http)
   end
 
   let :io do
@@ -40,7 +45,7 @@ describe Mingolf::Runner do
     4
   end
 
-  let :tee_times_full_day_response_body_participants do
+  let :tee_times_participants do
     {
       'SLOT_ID' => [
         {'ExactHcp' => '1,2'},
@@ -49,7 +54,7 @@ describe Mingolf::Runner do
     }
   end
 
-  let :tee_times_full_day_response_body do
+  let :tee_times do
     {
       'Slots' => [
         {
@@ -59,22 +64,14 @@ describe Mingolf::Runner do
           'OrganizationalunitName' => 'OrganizationalunitName',
         },
       ],
-      'Participants' => tee_times_full_day_response_body_participants,
+      'Participants' => tee_times_participants,
     }
-  end
-
-  let :tee_times_full_day_response do
-    double(:tee_times_full_day_response, body: JSON.dump(tee_times_full_day_response_body))
-  end
-
-  let :tee_times_full_day_url do
-    'https://mingolf.golf.se/handlers/booking/GetTeeTimesFullDay/COURSE_ID/CLUB_ID/20200530T090000/1'
   end
 
   subject :runner do
     described_class.new(
+      client,
       options,
-      http: http,
       io: io,
       courses: courses,
       attempts: 1,
@@ -84,9 +81,9 @@ describe Mingolf::Runner do
   end
 
   before do
-    allow(http).to receive(:post).with('https://mingolf.golf.se/handlers/login', anything)
-    allow(http).to receive(:get).with(tee_times_full_day_url, anything).and_return(tee_times_full_day_response)
     allow(sleeper).to receive(:sleep).with(60)
+    allow(client).to receive(:login)
+    allow(client).to receive(:tee_times).with('CLUB_ID', 'COURSE_ID', date).and_return(tee_times)
   end
 
   shared_examples 'free slot found' do
@@ -116,6 +113,11 @@ describe Mingolf::Runner do
 
   include_examples 'free slot found'
 
+  it 'logs in' do
+    runner.run
+    expect(client).to have_received(:login)
+  end
+
   context 'when slot time is outside range' do
     let :slot_time do
       '20200530T080000'
@@ -125,7 +127,7 @@ describe Mingolf::Runner do
   end
 
   context 'when number of free slots is not enough' do
-    let :tee_times_full_day_response_body do
+    let :tee_times do
       super().tap do |body|
         body['Participants']['SLOT_ID'] << {'ExactHcp' => '5,6'}
         body['Participants']['SLOT_ID'] << {'ExactHcp' => '7,8'}
@@ -136,7 +138,7 @@ describe Mingolf::Runner do
   end
 
   context 'when slot id is not part of participants' do
-    let :tee_times_full_day_response_body_participants do
+    let :tee_times_participants do
       {}
     end
 

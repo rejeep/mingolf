@@ -3,7 +3,12 @@
 require 'bundler/setup'
 $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
+require 'mingolf'
 require 'mingolf/cli'
+require 'mingolf/client'
 require 'mingolf/runner'
 
-Mingolf::Runner.new(Mingolf::Cli.parse(ARGV)).run
+Mingolf::Runner.new(
+  Mingolf::Client.new,
+  Mingolf::Cli.parse(ARGV),
+).run
