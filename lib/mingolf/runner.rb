@@ -47,7 +47,7 @@ module Mingolf
             @io.puts("#{slot_time_pretty} at #{slot_organizational_unit_name.inspect}")
           end
           @io.puts('')
-          @executor.system %|say "#{free_slots.size} free slots found"|
+          @executor.system("say '#{free_slots.size} free slots found'")
         end
         @sleeper.sleep(@sleep)
       end
