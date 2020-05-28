@@ -23,19 +23,7 @@ module Mingolf
     def run
       @client.login
       @attempts.times do
-        free_slots = []
-        @courses.each do |club_id, course_id|
-          tee_times = @client.tee_times(club_id, course_id, @date)
-          tee_times.fetch('Slots').each do |slot|
-            slot_time = Time.strptime(slot.fetch('SlotTime'), '%Y%m%dT%H%M%S')
-            if slot_time >= @from && slot_time <= @to
-              participants = tee_times.fetch('Participants').dig(slot.fetch('SlotID'))
-              if !participants || slot.fetch('MaximumNumberOfSlotBookingsPerSlot') - participants.size >= @slots
-                free_slots << slot
-              end
-            end
-          end
-        end
+        free_slots = fetch_free_slots
         if free_slots.empty?
           @io.puts('No free slots')
         else
@@ -50,6 +38,21 @@ module Mingolf
           @executor.system("say '#{free_slots.size} free slots found'")
         end
         @sleeper.sleep(@sleep)
+      end
+    end
+
+    def fetch_free_slots
+      @courses.flat_map do |club_id, course_id|
+        tee_times = @client.tee_times(club_id, course_id, @date)
+        tee_times.fetch('Slots').select do |slot|
+          slot_time = Time.strptime(slot.fetch('SlotTime'), '%Y%m%dT%H%M%S')
+          if slot_time >= @from && slot_time <= @to
+            participants = tee_times.fetch('Participants').dig(slot.fetch('SlotID'))
+            if !participants || slot.fetch('MaximumNumberOfSlotBookingsPerSlot') - participants.size >= @slots
+              slot
+            end
+          end
+        end
       end
     end
   end
