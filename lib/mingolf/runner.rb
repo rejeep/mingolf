@@ -1,7 +1,4 @@
-require 'date'
 require 'json'
-require 'optparse'
-require 'time'
 require 'typhoeus'
 
 module Mingolf
@@ -14,13 +11,12 @@ module Mingolf
       # %w[a9d7060f-0051-40fc-a021-98b885a55300 f6845066-ac12-4971-b7c9-327629d06b50], # St. Jörgen
     ].freeze
 
-    def initialize(argv, http: nil, io: nil, courses: nil, attempts: nil, sleeper: nil, executor: nil)
-      @options = parse_options(argv)
-      @date = @options.fetch(:date)
-      @from = @options.fetch(:from)
-      @to = @options.fetch(:to)
-      @slots = @options.fetch(:slots)
-      @sleep = @options.fetch(:sleep, 60)
+    def initialize(options, http: nil, io: nil, courses: nil, attempts: nil, sleeper: nil, executor: nil)
+      @date = options.fetch(:date)
+      @from = options.fetch(:from)
+      @to = options.fetch(:to)
+      @slots = options.fetch(:slots)
+      @sleep = options.fetch(:sleep, 60)
       @http = http || Typhoeus
       @io = io || STDOUT
       @courses = courses || COURSES
@@ -96,29 +92,6 @@ module Mingolf
           'User-Agent' => USER_AGENT,
         },
       )
-    end
-
-    def parse_options(argv)
-      options = {}
-      optparse = OptionParser.new do |opts|
-        opts.on('--date DATE') do |date|
-          options[:date] = Date.parse(date)
-        end
-        opts.on('--from FROM') do |from|
-          options[:from] = Time.parse("#{options.fetch(:date)} #{from}")
-        end
-        opts.on('--to TO') do |to|
-          options[:to] = Time.parse("#{options.fetch(:date)} #{to}")
-        end
-        opts.on('--slots SLOTS', Integer) do |slots|
-          options[:slots] = slots
-        end
-        opts.on('--sleep SECONDS', Integer) do |seconds|
-          options[:sleep] = seconds
-        end
-      end
-      optparse.parse!(argv)
-      options
     end
 
     def cookiefile

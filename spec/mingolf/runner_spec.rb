@@ -1,8 +1,13 @@
 require 'mingolf/runner'
 
 describe Mingolf::Runner do
-  let :argv do
-    %w[--date 2020-05-30 --from 10:00 --to 15:00 --slots 2]
+  let :options do
+    {
+      date: Date.new(2020, 5, 30),
+      from: Time.new(2020, 5, 30, 10, 0),
+      to: Time.new(2020, 5, 30, 15, 0),
+      slots: 2,
+    }
   end
 
   let :http do
@@ -68,7 +73,7 @@ describe Mingolf::Runner do
 
   subject :runner do
     described_class.new(
-      argv,
+      options,
       http: http,
       io: io,
       courses: courses,
