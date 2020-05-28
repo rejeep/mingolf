@@ -84,21 +84,39 @@ describe Mingolf do
     allow(http).to receive(:get).with(tee_times_full_day_url, anything).and_return(tee_times_full_day_response)
   end
 
-  it 'prints free slot' do
-    mingolf.run
-    expect(io).to have_received(:puts).with('Free slots found')
-    expect(io).to have_received(:puts).with('2020-05-30 11:30:00 +0200 at OrganizationalunitName')
+  shared_examples 'free slot found' do
+    it 'prints information about free slot' do
+      mingolf.run
+      expect(io).to have_received(:puts).with('Free slots found')
+      expect(io).to have_received(:puts).with('2020-05-30 11:30:00 +0200 at OrganizationalunitName')
+    end
+
+    it 'says information about free slot' do
+      mingolf.run
+      expect(executer).to have_received(:system).with('say "1 free slots found"')
+    end
   end
+
+  shared_examples 'no free slot found' do
+    it 'prints no free slots' do
+      mingolf.run
+      expect(io).to have_received(:puts).with('No free slots')
+    end
+
+    it 'does not say anything' do
+      mingolf.run
+      expect(executer).not_to have_received(:system)
+    end
+  end
+
+  include_examples 'free slot found'
 
   context 'when slot time is outside range' do
     let :slot_time do
       '20200530T080000'
     end
 
-    it 'does not print free slot' do
-      mingolf.run
-      expect(io).to have_received(:puts).with('No free slots')
-    end
+    include_examples 'no free slot found'
   end
 
   context 'when number of free slots is not enough' do
@@ -109,10 +127,7 @@ describe Mingolf do
       end
     end
 
-    it 'does not print free slot' do
-      mingolf.run
-      expect(io).to have_received(:puts).with('No free slots')
-    end
+    include_examples 'no free slot found'
   end
 
   context 'when slot id is not part of participants' do
@@ -120,9 +135,14 @@ describe Mingolf do
       {}
     end
 
-    it 'skips slot' do
-      mingolf.run
-      expect(io).to have_received(:puts).with('No free slots')
+    include_examples 'free slot found'
+  end
+
+  context 'when maximum number of slot bookings per slot is zero' do
+    let :maximum_number_of_slot_bookings_per_slot do
+      0
     end
+
+    include_examples 'no free slot found'
   end
 end

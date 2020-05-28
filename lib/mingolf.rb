@@ -54,10 +54,9 @@ class Mingolf
         response_body.fetch('Slots').each do |slot|
           slot_time = Time.strptime(slot.fetch('SlotTime'), '%Y%m%dT%H%M%S')
           if slot_time >= @from && slot_time <= @to
-            if participants = response_body.fetch('Participants').dig(slot.fetch('SlotID'))
-              if slot.fetch('MaximumNumberOfSlotBookingsPerSlot') - participants.size >= @slots
-                free_slots << slot
-              end
+            participants = response_body.fetch('Participants').dig(slot.fetch('SlotID'))
+            if !participants || slot.fetch('MaximumNumberOfSlotBookingsPerSlot') - participants.size >= @slots
+              free_slots << slot
             end
           end
         end
