@@ -21,7 +21,7 @@ describe Mingolf do
   end
 
   let :sleeper do
-    double(:sleeper, sleep: nil)
+    double(:sleeper)
   end
 
   let :executer do
@@ -82,6 +82,7 @@ describe Mingolf do
   before do
     allow(http).to receive(:post).with('https://mingolf.golf.se/handlers/login', anything)
     allow(http).to receive(:get).with(tee_times_full_day_url, anything).and_return(tee_times_full_day_response)
+    allow(sleeper).to receive(:sleep).with(60)
   end
 
   shared_examples 'free slot found' do

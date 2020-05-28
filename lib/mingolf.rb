@@ -21,6 +21,7 @@ class Mingolf
     @from = @options.fetch(:from)
     @to = @options.fetch(:to)
     @slots = @options.fetch(:slots)
+    @sleep = @options.fetch(:sleep, 60)
     @http = http || Typhoeus
     @io = io || STDOUT
     @courses = courses || COURSES
@@ -71,7 +72,7 @@ class Mingolf
         @io.puts('')
         @executer.system %|say "#{free_slots.size} free slots found"|
       end
-      @sleeper.sleep(60)
+      @sleeper.sleep(@sleep)
     end
   end
 
@@ -109,6 +110,9 @@ class Mingolf
       end
       opts.on('--slots SLOTS', Integer) do |slots|
         options[:slots] = slots
+      end
+      opts.on('--sleep SLEEP', Integer) do |sleep|
+        options[:sleep] = sleep
       end
     end
     optparse.parse!(argv)
