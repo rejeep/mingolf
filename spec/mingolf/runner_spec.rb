@@ -1,4 +1,3 @@
-# coding: utf-8
 require 'mingolf/runner'
 
 describe Mingolf::Runner do
