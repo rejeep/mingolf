@@ -22,6 +22,9 @@ module Mingolf
         opts.on('--sleep SECONDS', Integer) do |seconds|
           options[:sleep] = seconds
         end
+        opts.on('--reject EXP') do |exp|
+          options[:reject] = exp
+        end
       end
       optparse.parse!(argv)
       options

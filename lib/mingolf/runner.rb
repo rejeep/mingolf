@@ -13,6 +13,7 @@ module Mingolf
       @to = options.fetch(:to)
       @slots = options.fetch(:slots)
       @sleep = options.fetch(:sleep, 60)
+      @reject = options.fetch(:reject)
       @io = io || STDOUT
       @courses = courses || COURSES
       @attempts = attempts || 100_000
@@ -24,13 +25,13 @@ module Mingolf
       @client.login
       @attempts.times do
         free_slots = fetch_free_slots
+        free_slots.reject! { |slot| eval(@reject) } if @reject
         if free_slots.empty?
           @io.puts('No free slots')
         else
           @io.puts("#{free_slots.size} free slots found")
           free_slots.each do |free_slot|
-            slot_time = Time.strptime(free_slot.fetch('SlotTime'), '%Y%m%dT%H%M%S')
-            slot_time_pretty = slot_time.strftime('%Y-%m-%d %H:%M')
+            slot_time_pretty = free_slot.fetch('SlotTime').strftime('%Y-%m-%d %H:%M')
             slot_organizational_unit_name = free_slot.fetch('OrganizationalunitName')
             @io.puts("#{slot_time_pretty} at #{slot_organizational_unit_name.inspect}")
           end
@@ -49,7 +50,7 @@ module Mingolf
           if slot_time >= @from && slot_time <= @to
             participants = tee_times.fetch('Participants').dig(slot.fetch('SlotID'))
             if !participants || slot.fetch('MaximumNumberOfSlotBookingsPerSlot') - participants.size >= @slots
-              slot
+              slot.merge!('SlotTime' => slot_time)
             end
           end
         end
